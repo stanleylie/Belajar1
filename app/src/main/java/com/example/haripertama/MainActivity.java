@@ -1,14 +1,19 @@
 package com.example.haripertama;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.example.haripertama.model.Orang;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    private static final int REQUEST_CODE = 1;
 
     //TODO 1.1 deklarasi widget/button yang mau digunakan
     Button btnMove, btnPassData, btnPassObject, btnCallBack, btnEmail, btnCall;
@@ -52,16 +57,63 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
 
             case R.id.btn_call_back:
-                break;
-
-            case R.id.btn_email:
+                callBack();
                 break;
 
             case R.id.btn_call:
+                implicitCall();
+                break;
+
+            case R.id.btn_email:
+                implicitEmail();
                 break;
         }
+    }
+
+    // TODO 6.1
+    private void implicitEmail() {
+        Intent email = new Intent(Intent.ACTION_SENDTO,
+                Uri.fromParts("mailto",
+                        "stanleylie06@gmail.com",
+                        null));
+
+        email.putExtra(Intent.EXTRA_SUBJECT, "Ini Subject");
+        email.putExtra(Intent.EXTRA_TEXT, "Ini Text");
+
+        if (email.resolveActivity(getPackageManager()) != null) {
+            startActivity(Intent.createChooser(email, "Pilih share client"));
+        } else {
+            Toast.makeText(this, "Tidak ada share cient", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    //TODO 5.1 intent implicit call
+    private void implicitCall() {
+        Intent call = new Intent(Intent.ACTION_DIAL);
+        call.setData(Uri.parse("tel:089676119345"));
+        startActivity(call);
 
     }
+
+    // TODO 4.6
+    private void callBack() {
+        Intent callBack = new Intent(MainActivity.this, CallBack.class);
+        startActivityForResult(callBack, REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        // TODO 4.7 buat kondisi seandainya request code nya sama dan datanya ada
+        if(requestCode == REQUEST_CODE){
+            if(resultCode == RESULT_OK){
+                String tampung = data.getStringExtra(CallBack.EXTRA_DATA);
+                Toast.makeText(this, tampung, Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
     // TODO 3.3
     private void passObject() {
         Intent passObject = new Intent(MainActivity.this, PassingObject.class);
